@@ -1,0 +1,251 @@
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+{% if is_overview %}
+<div class="row overview-readonlyform-container">
+    <form action="{% url "overview_process" eventform_id=eventform.id %}" method="post">
+{% else %}
+{% if is_overview_confirm %}
+<div class="row overview-readonlyform-container">
+    <form action="{% url "overview_confirm_process" eventform_id=eventform.id %}" method="post">
+{% else %}
+<div class="row registration-readonlyform-container">
+    <form action="{% url "registration_confirm_process" %}" method="post">
+{% endif %}
+{% endif %}
+    <input type="hidden" id="event" name="event" value="{{ event.id }}" />
+    <input type="hidden" id="event_type" name="event_type" value="{{ event.event_type }}" />
+    <input type="hidden" id="eventform_id" name="eventform_id" value="{{ eventform.id|default:"" }}" />
+    {% csrf_token %}
+    <div class="page-content page-content--box">
+
+
+            <div class="input-table-container">
+                <div class="form-section__head">
+                    <span class="lang-ja"><b>ご本人様</b></span><br>
+                    <span class="lang-en"><b>Your information</b></span>
+                </div>
+
+                <table class="page-content--box__module form-section__content">
+                    <tr>
+                        <td class="label-cell">
+                        <label for="last_name">お名前 / Name</label>
+                        </td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.last_name|default:"" }}
+                        </td>
+                        <td class="input-cell input-cell-2">
+                            {{ form_input.first_name|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="{% if not event|is_visible_field:"last_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell">
+                        <label for="last_name_furigana">フリガナ</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.last_name_furigana|default:"" }}
+                        </td>
+                        <td class="input-cell input-cell-2">
+                            {{ form_input.first_name_furigana|default:"" }}
+
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"company_name" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="company_name">貴社名 / Company name</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form_input.company_name|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"company_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="company_name_furigana">会社名カナ（全角カナ）</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form_input.company_name_furigana|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"position" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="position">役職名 / Title</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form_input.position|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="{% if not event|is_visible_field:"zipcode" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="zipcode">ご住所 / Address</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            <span class="zipcode-icon">〒</span>
+                            {{ form_input.zipcode|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input">
+                       <td class="label-cell">
+                            <label for="address"><!-- 会社住所 -->{{ form|selected_choice:"address_type" }}住所</label>
+                        </td>
+                        <td colspan="2" class="input-cell input-cell-1 input-address{% if not event|is_visible_field:"address" %} hidden{% endif %}">
+                            <!-- {{ form|selected_choice:"address_type" }} <br> -->{{ form_input.prefecture }} {{ form_input.address }} {{ form_input.address_2 }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"honnin_attending" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="honnin_attending">ご出欠 / You will</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form|selected_choice:"honnin_attending" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"companion_attending" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="companion_attending">ご同伴者様 / Your partner will</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form|selected_choice:"companion_attending" }}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="form-section__head">
+                    <span class="lang-ja"><b>ご担当秘書様</b></span><br>
+                    <span class="lang-en"><b>Your secretary's information</b></span>
+                </div>
+
+                <table class="page-content--box__module form-section__content">
+                    <tr class="large-input {% if not event|is_visible_field:"secretary_attending" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="secretary_attending">ご出欠 / He or She will</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form|selected_choice:"secretary_attending" }}
+                        </td>
+                        <td class="input-cell"></td>
+                    </tr>
+
+                    <tr class="js-secretary_attending {% if not event|is_visible_field:"secretary_last_name" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="secretary_last_name">お名前 / Name</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.secretary_last_name|default_if_none:""|default:"" }}
+                        </td>
+                        <td class="input-cell input-cell-2">
+                            {{ form_input.secretary_first_name|default_if_none:""|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="js-secretary_attending {% if not event|is_visible_field:"secretary_last_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="secretary_last_name_furigana">フリガナ</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.secretary_last_name_furigana|default:"" }}
+                        </td>
+                        <td class="input-cell input-cell-2">
+                            {{ form_input.secretary_first_name_furigana|default:"" }}
+                        </td>
+                    <tr class="large-input js-secretary_attending {% if not event|is_visible_field:"secretary_department" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="secretary_department">所属部署名 / Department</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form_input.secretary_department|default:"" }}
+                        </td>
+                    </tr>
+                  </table>
+            </div>
+
+
+            <div class="input-table-container">
+                <div class="form-section__head">
+                    <span class="lang-ja"><b>レセプション</b></span><br>
+                    <span class="lang-en"><b>Reception</b></span>
+                </div>
+
+                <table class="page-content--box__module form-section__content">
+                    <tr class="large-input {% if not event|is_visible_field:"honnin_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="honnin_attending_reception">ご本人様 / You will</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form|selected_choice:"honnin_attending_reception" }}
+                        </td>
+                        <td class="input-cell"></td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"companion_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="companion_attending_reception">ご同伴者様 / Your partner will</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form|selected_choice:"companion_attending_reception" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"secretary_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="secretary_attending_reception">ご担当秘書様 / Your secretary will</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form|selected_choice:"secretary_attending_reception" }}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="form-section__head">
+                    <span class="lang-ja"><b>今後のご連絡先についてご入力ください</b></span><br>
+                    <span class="lang-en"><b>We can contact</b></span>
+                </div>
+
+                <table class="page-content--box__module form-section__content">
+                    <tr class="{% if not event|is_visible_field:"contact_address_type" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="contact_address_type">ご連絡先 / Contact for</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form|selected_choice:"contact_address_type" }}
+                        </td>
+                        <td class="input-cell"></td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"phone_number" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="phone_number">電話番号 / His or Her phone number</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.phone_number|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"phone_number" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="phone_number">内線 / Ext.</label></td>
+                        <td class="input-cell input-cell-1">
+                            {{ form_input.extension|default:"" }}
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"email" %}hidden{% endif %}">
+                        <td class="label-cell"><label for="email">メールアドレス / His or Her email address</label></td>
+                        <td colspan="2" class="input-cell input-cell-1">
+                            {{ form_input.email|default:"" }}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="comment-container">
+                    <span class="lang-ja"><b>コメント欄：質問、ご要望などあればご記入ください</b></span><br>
+                    <span class="lang-en"><b>Comments and questions</b></span>
+                    <div class="comment input-cell">
+                        {{ form_input.comment|default:"" }}
+                    </div>
+                </div>
+
+            </div>
+
+
+        <div class="col-md-12  button-action">
+            {% if is_overview %}
+            <button class="btn btn-default" type="submit" name="change-button">
+                <span class="lang-ja">修正する</span><br>
+                <span class="lang-en">Change</span>
+            </button>
+            <button class="btn btn-default" type="submit" name="close-button">
+                <span class="lang-ja">閉じる</span><br>
+                <span class="lang-en">Close</span>
+            </button>
+            {% else %}
+            {% if is_overview_confirm %}
+            <button class="btn btn-default" type="submit" name="change-button">
+                <span class="lang-ja">修正する</span><br>
+                <span class="lang-en">Change</span>
+            </button>
+            <button class="btn btn-default" type="submit" name="submit-button">
+                <span class="lang-ja">登録する</span><br>
+                <span class="lang-en">Complete</span>
+            </button>
+            {% else %}
+            <button class="btn btn-default" type="submit" name="change-button">
+                <span class="lang-ja">修正する</span><br>
+                <span class="lang-en">Change</span>
+            </button>
+            <button class="btn btn-default" type="submit" name="submit-button">
+                <span class="lang-ja">登録する</span><br>
+                <span class="lang-en">Complete registration</span>
+            </button>
+            {% endif %}
+            {% endif %}
+
+            <br><br>
+        </div>
+
+        </form>
+    </div>
+
+
+</div>

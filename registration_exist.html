@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+{% block title %}registration_exist{% endblock %}
+{% block bodyclass %}registration_exist{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>{{ event.title|default:"no title" }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-content page-content--desc">
+        <div class="explanation lang-ja">
+            <p>すでにご登録されている可能性がございます。</p>
+            <p>登録された情報の確認や修正の際はID（メールアドレス）と設定いただいたパスワードをご使用ください。</p>
+        </div>
+
+        <div class="explanation lang-en">
+            <p>The information you just submitted may have been already registered.</p>
+            <p>If you wish edit your information, please <a href="{% url "login" %}">login</a> in with your password.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

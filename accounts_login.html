@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+{% block title %}{{ event_title|default:"no title" }}{% endblock %}
+{% block bodyclass %}accounts_login{% endblock %}
+
+{% block messages %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>{{ event_title|default:"no title" }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="explanation">
+            <p class="lang-ja">初回登録完了メールで設定いただいたパスワードをご使用ください。IDはご登録いただいたメールアドレスとなります。</p>
+            <p class="lang-en">Please use the password  you set up after the first registration. Your ID is your email address you registered.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 explanation">
+        <div class="error {% if not error %}hidden{% endif %}">
+            <p class="lang-ja">認証パスワードが間違っています。</p>
+            <p class="lang-en">The password is incorrect.</p>
+            <p class="lang-en">{{ error }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="login-form-container">
+    <form action="{% url "login_process" %}" method="post" class="form-inline">
+    {% csrf_token %}
+        <div class="form-group">
+            <label class="sr-only" for="email">ID/メールアドレス</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="ID/メールアドレス">
+        </div>
+        <div class="form-group">
+            <label class="sr-only" for="password">パスワード/Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="パスワード/Password">
+        </div>
+        <button type="submit" class="btn">Sign in</button>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-md-12 page-content">
+        <div class="">
+            <p class="lang-ja">パスワードをお忘れの方は、<a href="{% url "accounts_reset_password" %}">こちら</a></p>
+            <p class="lang-en">If you forget your password click <a href="{% url "accounts_reset_password" %}">here</a>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

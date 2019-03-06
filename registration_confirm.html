@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+{% block title %}{{ event.title|default:"no title" }}{% endblock %}
+{% block bodyclass %}registration_confirm{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>{{ event.title|default:"no title" }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-content page-content--desc">
+      <div class="explanation">
+          <p class="lang-ja">ご入力いただいた内容のご確認をお願いします。</p>
+          <p class="lang-en">Please confirm the following information.</p>
+      </div>
+    </div>
+</div>
+
+{% include "form_readonly.html" %}
+
+{% endblock %}

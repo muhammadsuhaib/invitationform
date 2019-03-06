@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block bodyclass %}home{% endblock %}
+
+{% block content %}
+
+{% if open_events|length > 0 %}
+<!-- list open events -->
+
+{% for event in open_events %}
+
+
+<script>
+document.body.classList.add("background_image");
+</script>
+
+
+<div class="event open-event" id="main-box">
+
+
+    <div>
+      <h1 id="heading" style="margin-left: 10px;">{{ event.title|default:"no title" }}</h1>
+
+      <div class="explanation page-content--desc">
+          <p class="lang-ja home_page_text" style="margin-left: 10px;" >Web登録のご案内に記載された「初回登録用認証コード」をご入力ください。</p>
+          <p class="lang-en home_page_text" style="margin-left: 10px;" >Please enter the 4 digit access code indicated on Web Registration Instructions card.</p>
+      </div>
+
+      <!-- Have to do the add:"0" in order to cast everything to the right type so that the comparision works. -->
+     <div style="margin-left: 10px;">
+      {% if for_id and event.id|add:"0" == for_id|add:"0" %}
+      {% include "form_error.html" %}
+      {% endif %}
+    </div>
+      <form class="form-home" action="{% url "bouncer" %}" method="post">
+          {% csrf_token %}
+          <label for="code" id="access_code" style="margin-left: 10px;">Acccess Code: </label>
+          <input id="code" class="input-small" type="text" name="code" style="color: #000; margin-left:10px;">
+          <input id="event" type="hidden" name="event" value="{{ event.id }}">
+          <input type="submit" value="Sign in">
+          <br>
+          <br>
+          <br>
+      </form>
+
+      </div>
+
+</div>
+
+
+
+{% endfor %}
+
+{% else %}
+<!-- no events open yet -->
+    {% if future_events|length > 0 %}
+<!-- list future events -->
+{% for event in future_events %}
+<div class="event future-event">
+    <h1>{{ event.title|default:"no title" }}</h1>
+    <p>Event date: {{ event.date_event|date:"Y年m月d日" }}</p>
+    <p>The event registration will be open from {{ event.date_open|date:"Y年m月d日" }} until {{ event.date_close|date:"Y年m月d日" }}</p>
+</div>
+{% endfor %}
+    {% else %}
+<!-- no future events -->
+<div class="no-events">
+    <h1>イベントは終了しました</h1>
+</div>
+
+
+
+    {% endif %}
+{% endif %}
+
+{% endblock %}

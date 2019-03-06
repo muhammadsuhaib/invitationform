@@ -1,0 +1,388 @@
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+
+<!--
+    This form below is supposed to be used for BOTH event types: NYC and CXO
+    However, if it is easier to create 2 separate forms here, and do something like the below,
+    feel free to change it. Also, if you do that, you obviously need to create those extra
+    html template files.
+
+    { if event.event_type == "nyc" }
+        { include "form_nyc.html "}
+    { else }
+        { include "form_cxo.html "}
+    { endif }
+ -->
+
+ <!--
+
+ TODO(dkg):
+ - Use https://github.com/WaniKani/WanaKana for checking if a field has only katakana in it.
+ - Use https://github.com/hexenq/kuroshiro.js to convert kanji to katakana
+
+Or try either of these
+- https://github.com/ysawa/jquery-auto-kana-input
+- https://www.npmjs.com/package/jp-conversion
+
+ -->
+
+<script>
+    var required_fields = "{{ event.get_required_form_fields_as_string }}".split(",").sort();
+    var error_fields = [];
+    {% for error in form_errors %}
+        error_fields.push({
+            "field": "{{ error.field|default:"" }}",
+            "error": "{{ error.error|default:"" }}",
+        });
+    {% endfor %}
+
+    var previousFormData = {};
+    {% if form_input %}
+        {% for key, val in form_input.iteritems %}
+        previousFormData["{{ key }}"] = "{{ val|default_if_none:""|escapejs }}";
+        {% endfor %}
+    {% endif %}
+
+</script>
+
+{% if is_overview %}
+<div class="row overiew-form-container">
+    <form action="{% url "overview_change_process" eventform_id=eventform.id %}" method="post">
+{% else %}
+<div class="row registration-form-container">
+    <form action="{% url "registration_process" %}" method="post">
+{% endif %}
+    <input type="hidden" id="event" name="event" value="{{ event.id }}" />
+    <input type="hidden" id="event_type" name="event_type" value="{{ event.event_type }}" />
+    <input type="hidden" id="eventform_id" name="eventform_id" value="{{ eventform.id|default:"" }}" />
+    {% csrf_token %}
+
+
+
+
+    <div class="page-content page-content--box">
+
+
+            <div class="input-table-container">
+                <div class="form-section__head">
+                    <span class="lang-ja">ご本人様についてご入力ください</span><br>
+                    <span class="lang-en">Please provide your information.</span>
+                </div>
+
+                <table class="form-section__content page-content--box__module">
+                    <tr>
+
+                        <td class="label-cell{% if event|is_required_field:"last_name" %} required{% endif %}">
+                        <label for="last_name" >お名前 / Name </label></td>
+                        <td class="input-cell input-cell-1{% if event|is_required_field:"last_name" %} required{% endif %}">
+                            <input type="text" max_length="{{ form|max_length:"last_name" }}" class="js-convert-to-kana" name="last_name" id="id_last_name" placeholder="姓 / Last" {% if event|is_required_field:"last_name" %}required{% endif %}>
+                        </td>
+
+                        <td class="input-cell input-cell-2{% if event|is_required_field:"first_name" %} required{% endif %}">
+                            <input type="text" max_length="{{ form|max_length:"first_name" }}" class="js-convert-to-kana" name="first_name" id="id_first_name" placeholder="名 / First" {% if event|is_required_field:"first_name" %}required{% endif %}>
+                        </td>
+                    </tr>
+
+
+                    <tr class="{% if not event|is_visible_field:"last_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"last_name_furigana" %} required{% endif %}">
+                        <label for="last_name_furigana" >フリガナ </label></td>
+                        <td class="input-cell{% if event|is_required_field:"last_name_furigana" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"last_name_furigana" }}" class="only-katakana" name="last_name_furigana" id="id_last_name_furigana" placeholder="セイ (全角)"{% if event|is_required_field:"last_name_furigana" %} required{% endif %}></td>
+                        <td class="input-cell{% if event|is_required_field:"first_name_furigana" %} required{% endif %} input-cell-2"><input type="text" max_length="{{ form|max_length:"first_name_furigana" }}" class="only-katakana" name="first_name_furigana" id="id_first_name_furigana" placeholder="メイ (全角)"{% if event|is_required_field:"first_name_furigana" %} required{% endif %}></td>
+                    </tr>
+
+
+                    <tr class="large-input {% if not event|is_visible_field:"company_name" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"company_name" %} required{% endif %}"><label for="company_name">貴社名 / Company name </label></td>
+                        <td class="input-cell{% if event|is_required_field:"company_name" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"company_name" }}" class="js-convert-to-kana" name="company_name" id="id_company_name"></td>
+                    </tr>
+
+                    <tr class="large-input {% if not event|is_visible_field:"company_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"company_name_furigana" %} required{% endif %}"><label for="company_name_furigana">会社名カナ（全角カナ） </label></td>
+                        <td class="input-cell{% if event|is_required_field:"company_name_furigana" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"company_name_furigana" }}" class="no-kanji" name="company_name_furigana" id="id_company_name_furigana"></td>
+                    </tr>
+
+
+                    <tr class="large-input {% if not event|is_visible_field:"position" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"position" %} required{% endif %}"><label for="position">役職名 / Title </label></td>
+                        <td class="input-cell{% if event|is_required_field:"position" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"position" }}" class="" name="position" id="id_position"></td>
+                    </tr>
+
+
+                     <tr class="large-input">
+
+
+
+                      <td class="label-cell{% if event|is_required_field:"zipcode" %} required{% endif %}"><label for="zipcode">ご住所 / Address </label></td>
+                        <td colspan="2" class="label-cell{% if event|is_required_field:"address_type" %} required{% endif %}">
+                            <div class="radiobuttons {% if not event|is_visible_field:"address_type" %} hidden{% endif %}">
+                                <label><input type="radio" name="address_type" id="id_address_type" {% if event|is_required_field:"address_type" %} required{% endif %} value="home">自宅 / Home　</label>
+                                <label><input type="radio" class="" name="address_type" id="id_address_type" {% if event|is_required_field:"address_type" %} required{% endif %} value="company">会社 / Company　</label>
+                            </div>
+                        </td>
+
+
+
+                      <!--   <td class="label-cell{% if event|is_required_field:"address" %} required{% endif %}"><label for="address">会社住所 / Address</label></td> -->
+
+
+                    </tr>
+
+
+
+                    <tr class="large-input {% if not event|is_visible_field:"zipcode" %}hidden{% endif %}">
+                      <td class="label-cell"><label for="zipcode"></label></td>
+                        <td colspan="2" class="zipcode-cell input-cell{% if event|is_required_field:"zipcode" %} required{% endif %} input-cell-1">
+                          <span>
+                            <input type="hidden" max_length="{{ form|max_length:"zipcode" }}" class="zipcode" name="zipcode" id="id_zipcode">
+                            <input class="zip-field zip01" type="text" id="id_zip1" maxlength="3" style="ime-mode: disabled;" />-<input class="zip-field zip02" type="text" id="id_zip2" maxlength="4" style="ime-mode: disabled;" />
+                          </span>
+                          <button name="address-search" class="btn" type="button">Address Search</button>
+                          <div class="form-section__note">半角数字でご入力ください。<br>Please use half-width numbers.</div>
+                        </td>
+                        <!-- <td class="input-cell input-cell-2"><button name="address-search" class="btn" type="button">Address Search</button></td> -->
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">
+                            <span id="ziperrormessage" style="color: red;"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                      <td class="label-cell"><label></label></td>
+                      <td class="address-cell input-cell{% if event|is_required_field:"address" %} required{% endif %} input-cell-1 {% if not event|is_visible_field:"address" %} hidden{% endif %}">
+                            <input type="text" placeholder="例）東京都" name="prefecture" id="id_prefecture" {% if event|is_required_field:"address" %} required{% endif %} /><br>
+                            <input type="text" placeholder="例）新宿区西新宿" name="address" id="id_address" {% if event|is_required_field:"address" %} required{% endif %} /><br>
+                            <input type="text" placeholder="例）1-2-3" name="address_2" id="id_address_2" {% if event|is_required_field:"address" %} required{% endif %} />
+                      </td>
+                      <td></td>
+                    </tr>
+
+
+                    <tr class="large-input {% if not event|is_visible_field:"honnin_attending" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"honnin_attending" %} required{% endif %}"><label for="honnin_attending">ご出欠 / You will</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"honnin_attending" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons {% if not event|is_visible_field:"honnin_attending" %} hidden{% endif %}">
+                              <label><input type="radio" class="" name="honnin_attending" id="id_honnin_attending"{% if event|is_required_field:"honnin_attending" %} required{% endif %} value="y">ご出席 / Attend</label>
+                              <label><input type="radio" class="" name="honnin_attending" id="id_honnin_attending"{% if event|is_required_field:"honnin_attending" %} required{% endif %} value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="large-input {% if not event|is_visible_field:"companion_attending" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"companion_attending" %} required{% endif %}"><label for="companion_attending">ご同伴者様 / Your partner will</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"companion_attending" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons {% if not event|is_visible_field:"companion_attending" %} hidden{% endif %}">
+                                <label><input type="radio" class="" name="companion_attending" id="id_companion_attending"{% if event|is_required_field:"companion_attending" %} required{% endif %} value="y">ご出席 / Attend</label>
+                                <label><input type="radio" class="" name="companion_attending" id="id_companion_attending"{% if event|is_required_field:"companion_attending" %} required{% endif %} value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <hr>
+
+                <div class="form-section__head">
+                    <span class="lang-ja">ご担当秘書様についてご入力ください</span><br>
+                    <span class="lang-en">Please provide your secretary's information.</span>
+                </div>
+
+                <table class="form-section__content">
+                    <tr class="large-input {% if not event|is_visible_field:"secretary_attending" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"secretary_attending" %} required{% endif %}"><label for="secretary_attending">ご出欠 / He or She will</label></td>　
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"secretary_attending" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons">
+                              <label><input type="radio" class="" name="secretary_attending" id="id_secretary_attending"{% if event|is_required_field:"secretary_attending" %} required{% endif %} value="y">ご出席 / Attend</label>
+                              <label><input type="radio" class="" name="secretary_attending" id="id_secretary_attending"{% if event|is_required_field:"secretary_attending" %} required{% endif %} value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="js-secretary_attending {% if not event|is_visible_field:"secretary_last_name" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"secretary_last_name" %} required{% endif %}"><label for="secretary_last_name">お名前 / Name</label></td>
+                        <td class="input-cell{% if event|is_required_field:"secretary_last_name" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"secretary_last_name" }}" class="js-convert-to-kana" name="secretary_last_name" id="id_secretary_last_name"{% if event|is_required_field:"secretary_last_name" %} required{% endif %} placeholder="姓 / Last"></td>
+                        <td class="input-cell{% if event|is_required_field:"secretary_first_name" %} required{% endif %} input-cell-2"><input type="text" max_length="{{ form|max_length:"secretary_first_name" }}" class="js-convert-to-kana" name="secretary_first_name" id="id_secretary_first_name"{% if event|is_required_field:"secretary_first_name" %} required{% endif %} placeholder="名 / First"></td>
+                    </tr>
+                    <tr class="js-secretary_attending {% if not event|is_visible_field:"secretary_last_name_furigana" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"secretary_last_name_furigana" %} required{% endif %}"><label for="secretary_last_name_furigana">フリガナ</label></td>
+                        <td class="input-cell{% if event|is_required_field:"secretary_last_name_furigana" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"secretary_last_name_furigana" }}" class="only-katakana" name="secretary_last_name_furigana" id="id_secretary_last_name_furigana"{% if event|is_required_field:"secretary_last_name_furigana" %} required{% endif %} placeholder="セイ (全角)"></td>
+                        <td class="input-cell{% if event|is_required_field:"secretary_first_name_furigana" %} required{% endif %} input-cell-2"><input type="text" max_length="{{ form|max_length:"secretary_first_name_furigana" }}" class="only-katakana" name="secretary_first_name_furigana" id="id_secretary_first_name_furigana"{% if event|is_required_field:"secretary_first_name_furigana" %} required{% endif %} placeholder="メイ (全角)"></td>
+                    </tr>
+                    <tr class="large-input js-secretary_attending {% if not event|is_visible_field:"secretary_department" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"secretary_department" %} required{% endif %}"><label for="secretary_department">所属部署名 / Department</label></td>
+                        <td class="input-cell{% if event|is_required_field:"secretary_department" %} required{% endif %} input-cell-1"><input type="text" max_length="{{ form|max_length:"" }}" class="" name="secretary_department" id="id_secretary_department"{% if event|is_required_field:"secretary_department" %} required{% endif %}></td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <hr>
+
+            <div class="input-table-container">
+                <div class="form-section__head">
+                    <span class="lang-ja">レセプションについてご入力ください</span><br>
+                    <span class="lang-en">Reception</span>
+                </div>
+
+                <table class="form-section__content">
+                    <tr><td class="label-cell" style="margin: 0; padding: 0;"></td><td class="input-cell"></td><td class="input-cell"></td></tr>
+                    <tr class="large-input {% if not event|is_visible_field:"honnin_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"honnin_attending_reception" %} required{% endif %}"><label for="honnin_attending_reception">ご本人様 / You will</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"honnin_attending_reception" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons">
+                              <label><input type="radio" class="" name="honnin_attending_reception" id="id_honnin_attending_reception"{% if event|is_required_field:"honnin_attending_reception" %} required{% endif %} value="y">ご出席 / Attend</label>
+                              <label><input type="radio" class="" name="honnin_attending_reception" id="id_honnin_attending_reception"{% if event|is_required_field:"honnin_attending_reception" %} required{% endif %} value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"companion_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"companion_attending_reception" %} required{% endif %}"><label for="companion_attending_reception">ご同伴者様 / Your partner will</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"companion_attending_reception" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons">
+                              <label><input type="radio" class="" name="companion_attending_reception" id="id_companion_attending_reception" {% if event|is_required_field:"companion_attending_reception" %} required{% endif %}value="y">ご出席 / Attend</label>
+                              <label><input type="radio" class="" name="companion_attending_reception" id="id_companion_attending_reception" {% if event|is_required_field:"companion_attending_reception" %} required{% endif %}value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="large-input {% if not event|is_visible_field:"secretary_attending_reception" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"secretary_attending_reception" %} required{% endif %}"><label for="secretary_attending_reception">ご担当秘書様 / Your secretary will</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"secretary_attending_reception" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons">
+                              <label><input type="radio" class="" name="secretary_attending_reception" id="id_secretary_attending_reception"{% if event|is_required_field:"secretary_attending_reception" %} required{% endif %} value="y">ご出席 / Attend</label>
+                              <label><input type="radio" class="" name="secretary_attending_reception" id="id_secretary_attending_reception"{% if event|is_required_field:"secretary_attending_reception" %} required{% endif %} value="n">ご欠席 / Not Attend</label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <hr>
+
+
+                <div class="form-section__head">
+                    <span class="lang-ja">今後のご連絡先についてご入力ください</span><br>
+                    <span class="lang-en">We can contact </span>
+                </div>
+
+                <table class="form-section__content">
+                    <tr class="{% if not event|is_visible_field:"contact_address_type" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"contact_address_type" %} required{% endif %}"><label for="contact_address_type">ご連絡先 / Contact for</label></td>
+                        <td colspan="2" class="input-cell{% if event|is_required_field:"contact_address_type" %} required{% endif %} input-cell-1">
+                            <div class="radiobuttons">
+                              <label><input type="radio" class="" name="contact_address_type" id="id_contact_address_type"{% if event|is_required_field:"contact_address_type" %} required{% endif %} value="hon">ご本人様 / You</label>
+                              <label><input type="radio" class="" name="contact_address_type" id="id_contact_address_type"{% if event|is_required_field:"contact_address_type" %} required{% endif %} value="sec">ご担当秘書様 / Your secretary</label>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="large-input {% if not event|is_visible_field:"phone_number" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"phone_number" %} required{% endif %}">
+                            <label for="phone_number">電話番号 / <br>His or Her phone number</label>
+                        </td>
+                        <td valign="top" colspan="2" class="phoneNumber-cell input-cell{% if event|is_required_field:"phone_number" %} required{% endif %} input-cell-1">
+                            <table>
+                                <tr>
+                                    <td valign="top">
+                                        <input placeholder="例）12-3456-7890" type="hidden" maxlength="{{ form|max_length:"" }}" class="" name="phone_number" id="id_phone_number"
+                                        {% if event|is_required_field:"phone_number" %} required{% endif %}>
+
+                                        <input placeholder="例）03" type="text" maxlength="4" class="phone-field" id="id_phone_number1" required>-
+                                        <input placeholder="例）0000" type="text" maxlength="4" class="phone-field" id="id_phone_number2" required>-
+                                        <input placeholder="例）1111" type="text" maxlength="4" class="phone-field" id="id_phone_number3" required>
+
+                                        <br><span class="form-section__note">半角数字でご入力ください。<br>Please use half-width numbers.</span>
+                                    </td>
+                                    <td valign="top">
+                                        内線/Ext: <input placeholder="例）123" type="text" maxlength="{{ form|max_length:"" }}" class="extension" name="extension" id="id_extension">
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr class="email-cell large-input {% if not event|is_visible_field:"email" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"email" %} required{% endif %}"><label for="email">メールアドレス / <br>His or Her email address</label>
+                        </td>
+                        <td class="input-cell{% if event|is_required_field:"email" %} required{% endif %} input-cell-1"><input type="email" class="" name="email" id="id_email"{% if event|is_required_field:"email" %} required{% endif %}>
+                        </td>
+                        <td class="input-cell" rowspan="2">
+                          <span class="form-section__note">※1つのメールアドレスでご登録できるのは1名様までです。2名様以上のご登録をご希望の場合は、アクセンチュア ニューイヤー・コンサート事務局までご連絡ください。<br>
+                            You can register one person with one email address. If you would like to register more than one, please contact the Accenture New Year Concert Office.</span>
+                        </td>
+                    </tr>
+
+                    <tr class="large-input {% if not event|is_visible_field:"email" %}hidden{% endif %}">
+                        <td class="label-cell{% if event|is_required_field:"email" %} required{% endif %}"><label for="email_type_again">メールアドレス再入力 / <br>Retype email address</label></td>
+                        <td class="input-cell{% if event|is_required_field:"email" %} required{% endif %} input-cell-1"><input type="email" class="" name="email_type_again" id="id_email_type_again"{% if event|is_required_field:"email" %} required{% endif %}></td>
+                        <!-- <td class="input-cell"></td> -->
+                    </tr>
+
+                </table>
+
+                <div class="form-section__note form-section__note--full">
+                    <span class="lang-ja">ご登録完了後、こちらのメールアドレスに登録情報確認/修正用URLとパスワード設定用URLをお送りします。<br>ご登録情報の確認や修正の際は設定いただくパスワードにてログインください。</span><br>
+                    <span class="lang-en">After you have completed your registration, we will send you the URL to set up your own password and URL for editing your information. If you wish edit your information, please log in with your password.<br><br></span>
+                </div>
+                <div class="form-section__head">
+                    <span class="lang-ja">コメント欄：質問、ご要望などあればご記入ください</span><br>
+                    <span class="lang-en">Comments and questions</span><br>
+                </div>
+                <div>
+                  <textarea class="large-input" name="comment" id="id_comment" placeholder="Write your comments and inquiries here..."></textarea>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <div class="col-md-12 button-action" >
+        {% if is_overview %}
+            <button class="btn btn-default" type="submit" name="submit-button">
+                <span class="lang-ja">更新する</span><br>
+                <span class="lang-en">Update</span>
+            </button>
+        {% else %}
+        {% if is_overview_change %}
+            <button class="btn btn-default" type="submit" name="submit-button">
+                <span class="lang-ja">更新する</span><br>
+                <span class="lang-en">Update</span>
+            </button>
+        {% else %}
+            <button class="btn btn-default" type="submit" name="submit-button">
+                <span class="lang-ja">登録する</span><br>
+                <span class="lang-en">Register</span>
+            </button>
+            <br>
+            <br>
+        {% endif %}
+        {% endif %}
+             </div>
+
+
+
+
+
+
+        <div class="col-md-12 form-general-errors">
+            <div class="form-required-fields-error text-danger {% if not required_fields_error %}hidden{% endif %}">
+                <span class="lang-ja">※未入力の項目があります</span><br>
+                <span class="lang-en">Please complete all required fields.</span>
+            </div>
+        </div>
+
+
+
+        </form>
+    </div>
+
+
+
+
+
+
+
+</div>
+
+<script src="{% static "/invitationform/js/vendor/wanakana-2.2.0.min.js" %}"></script>
+<script src="{% static "/invitationform/js/vendor/kuroshiro.min.js" %}"></script>

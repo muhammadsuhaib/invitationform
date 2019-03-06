@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+{% load form_tags %}
+
+{% block title %}registration_thankyou{% endblock %}
+{% block bodyclass %}registration_thankyou{% endblock %}
+
+{% block content %}
+
+<style>
+
+ @media screen and (max-width: 768px) {
+     #border_explanation{
+        width: 78% !important;
+     }
+    }
+
+   @media screen and (max-width: 647px) {
+     #border_explanation{
+        width: 100% !important;
+     }
+    }
+
+</style>
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>{{ event.title|default:"no title" }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-content page-content--desc">
+        <div class="explanation lang-ja">
+            <p>{{ event.discription|default:"Accenture New Year Concert 2019" }}へご出欠の登録をいただきありがとうございました。<br>
+            ご登録いただいたメールアドレスに登録情報確認/修正用URLとパスワード設定用URLをお送りしました。<br>
+            ご登録情報の確認や修正の際は設定いただくパスワードにてログインください。<br>
+            入力されたメールアドレスに誤りがある場合、または、迷惑メール対策等により、「ご登録完了メール」を受信できない場合がございます。<br>
+            メールが受信できない場合、下記の事務局へお問い合わせください。
+            </p>
+        </div>
+
+        <div class="explanation lang-en">
+            <p>Thank you very much for taking time to fill out the form. <br>
+            We have sent a confirmation email to your registered email address with the URL to set up your own password and also the URL to edit your information. <br>
+            You will be required to enter this password to edit your information.<br>
+            There are cases that you might not receive the registration confirmation email because of wrong email address, span filtering. If you do not receive the confirmation email, please contact the Accenture New Year Concert Office.<br><br><br><br><br><br>
+            </p>
+        </div>
+
+        <div class="explanation lang-en"  style="border: solid; width: 60%" id="border_explanation">
+        <p>ご不明点等はアクセンチュア ニューイヤー・コンサート事務局へお問い合わせください。 <br>
+            For any questions and inquiries, please contact Accenture New Year Concert Office:<br> 
+            TEL:03-5657-0700 (受付時間：平日10:00～18:00 土・日・祝日と12/29～1/3は休み)<br>
+            Email:nyc-jimukyoku2019@jtbcom.co.jpp</p>
+        </div>
+
+
+    
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

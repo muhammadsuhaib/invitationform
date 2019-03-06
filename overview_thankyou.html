@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+
+{% block title %}{{ event.title|default:"Overview Thank You" }}{% endblock %}
+{% block bodyclass %}overview_thankyou{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>{{ event.title|default:"Thank You" }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-content page-content--desc">
+        <div class="explanation">
+            <p class="lang-ja">登録情報の変更を受付けました。<br>ご登録いただいたメールアドレスに修正受付完了通知メールをお送りいたします。</p>
+            <p class="lang-en">We have updated your registered information.<br>We have sent you the confirmation email to your registered email address.</p>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="row">
+    <div class="col-md-12">
+        <p class="block-center">
+            <a href="{% url "overview" %}">back</a>
+        </p>
+    </div>
+</div> -->
+
+{% endblock %}

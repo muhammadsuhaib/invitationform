@@ -1,0 +1,55 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="user-scalable=yes,initial-scale=1.0" />
+    <meta name="description" content="Your Concert参加者登録" />
+    <title>Accenture {% block title %}{% endblock %}</title>
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static "invitationform/css/main.css" %}">
+{% endblock %}
+    <script>
+    var isLocal = "{{ is_local }}".toLowerCase() === "true";
+    </script>
+</head>
+<body class="page page-{% block bodyclass %}{% endblock %} " >
+    
+    {% block header %}
+        {% include "header.html" %}
+    {% endblock %}
+    
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    {% if message.message == error and field and for_id %}
+    <!-- should be displayed some place else according to field -->
+    {% else %}
+    <li{% if message.tags %} class="text-{{ message.tags }} {{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+    
+    <div class="main-content-container container-fluid">
+    {% block content %}{% endblock %}
+    </div>
+    
+    <div id="content" class="hidden"></div>
+
+    {% block footer %}
+        {% include "footer.html" %}
+    {% endblock %}
+
+{% block javascripts %}
+    <script src="{% static "invitationform/js/vendor/jquery-3.2.1.min.js" %}"></script>
+    <script src="{% static "invitationform/js/vendor/bootstrap.min.js" %}"></script>
+    <script src="{% static "invitationform/js/vendor/jquery.autoKana.js" %}"></script>
+    <script src="{% static "invitationform/js/app.min.js" %}"></script>
+{% endblock %}
+
+</body>
+</html>

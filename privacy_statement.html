@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+
+{% block title %}個人情報取り扱いについて - Privacy Statement{% endblock %}
+{% block bodyclass %}privacy_statement{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 page-title">
+        <h1>個人情報取り扱いについて <br> Privacy Statement</h1>
+    </div>
+    <h2>ご登録前にご確認ください。</h2>
+    <!-- <div class="col-md-4 page-title"></div> -->
+</div>
+
+<div class="page-content page-content--box">
+    <div class="lang-ja">
+        <h3>個人情報の取扱について</h3>
+        <p>アクセンチュア株式会社 (以下「アクセンチュア」といいます)では、グローバル共通のグループ規範 (プライバシーポリシー)に基づき、個人情報保護に取り組んでおります。</p>
+        <p>「Accenture New Year Concert」 (以下「本イベント」といいます) へのご招待は、過去にアクセンチュアのセミナー等のイベントにご参加いただいた方の情報、アクセンチュア社員にいただいたお名刺、およびWebや新聞の人事異動欄等で公開されている情報を基に、お送りしております。</p>
+        <p>アクセンチュアは、本イベントへのご出欠のご返信を通じて収集した個人情報を、本イベントに関連する事項をお客さまへご連絡する際に利用する他、アクセンチュアの新製品・サービス/キャンペーン/イベント等の企画・開発、社内における調査・研究、お客さまから再度ご連絡をいただいた際の必要に応じた本人確認、およびアクセンチュアのサービス/キャンペーン/セミナー/イベント等のDM、電話、メールでのご案内の目的で取得・利用させていただく可能性があり、その範囲を超えた取り扱いは致しません。</p>
+        <p>個人情報の提供は任意となりますが、頂いた情報が正確でない、または不足がある場合には、本イベントへのご参加を正しく受け付けることができない恐れがございます。</p>
+        <p>アクセンチュアが個人情報をどのように保護しているか、また、そのような個人情報に関して本人が有する権利については、以下にてご覧ください。<br><br></p>
+
+        <p>「アクセンチュアにおける個人情報取り扱いについて」<br><a href="https://www.accenture.com/jp-ja/privacy-data-handling" target="_blank" title="This will open in a new window.">https://www.accenture.com/jp-ja/privacy-data-handling</a></p>
+        <p>「個人情報の保護に関する基本方針」<br><a href="https://www.accenture.com/jp-ja/privacy-basic-policy" target="_blank" title="This will open in a new window.">https://www.accenture.com/jp-ja/privacy-basic-policy</a></p>
+        <p>アクセンチュア 「プライバシーポリシー」<br><a href="https://www.accenture.com/jp-ja/privacy-policy" target="_blank" title="This will open in a new window.">https://www.accenture.com/jp-ja/privacy-policy</a><br><br></p>
+        <h4 class="featured">ご招待に関する注意事項</h4>
+        <p>お申込みにあたっては、本イベントへのご参加が貴社の社内ルールや規定に違反しないことを、あらかじめ貴社法務部など適切な部門にお確かめください。<br><br></p>
+    </div>
+
+    <div class="lang-en">
+        <h3>Note on our invitation</h3>
+        <p>All invitees are asked to please confirm the permissibility of their attendance with their appropriate legal and ethics officers prior to participating in this event.
+        <p>Your acceptance of this invitation and attendance at the event serves as your confirmation that Accenture's invitation will not conflict with any of your organization's internal policies or regulations. </p>
+        <p>Accenture Privacy Statement<br>
+          <a href="https://www.accenture.com/us-en/privacy-policy" target="_blank" title="This will open in a new window.">https://www.accenture.com/us-en/privacy-policy</a> <!-- http://www.accenture.com/us-en/Pages/privacy-policy -->
+        </p>
+        <p>Please click one of the following after confirming the use of data within our privacy policy above.<br><br></p>
+
+      <form action="{% url "privacy_statement_process" %}" method="post">
+            {% csrf_token %}
+
+              <button class="btn btn-default text-center" name="notagree" value="notagree">
+                  <span class="lang-jp">同意しない</span><br/>
+                  <span class="lang-en">Not Agree</span>
+              </button>
+
+              <button class="btn btn-default text-center" name="agree" value="agree">
+                  <span class="lang-jp">同意して記入する</span><br>
+                  <span class="lang-en">Agree</span>
+              </button>
+
+      </form>
+    </div>
+</div>
+
+
+
+{% endblock %}
